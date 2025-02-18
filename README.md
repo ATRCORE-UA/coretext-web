@@ -31,7 +31,7 @@ To configure the server, you need to edit the `config.json` file. Here's an exam
   "host": "0.0.0.0",
   "port": 80,
   "enable_ssl": false,
-  "ssl_cert": "Address/to/your/cert.pem",.
+  "ssl_cert": "Address/to/your/cert.pem",
   "ssl_key": "Address/to/your/key.pem",
   "domain": "yourdomain.com",
   "ftp_srv_index": "true",
