@@ -2,10 +2,10 @@
     "host": "0.0.0.0",
     "port": 80,
     "enable_ssl": false,
-    "ssl_cert": "Adress/to/your/cert.pem",
-    "ssl_key": "Adress/to/your/key.pem",
+    "ssl_cert": "Path/to/your/cert.pem",
+    "ssl_key": "Path/to/your/key.pem",
     "domain": "your domain",
-	"ftp_srv_index": "true",
-	"index_file": "index.html"
-
+	"ftp_srv_index": "false",
+	"index_file": "index.html",
+	"htdocs_path": "Path/to/your/htdocs"
 }
