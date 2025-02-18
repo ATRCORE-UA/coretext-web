@@ -23,3 +23,17 @@ To configure the server, you need to edit the `config.json` file. Here's an exam
   "ftp_srv_index": "true",  // Enables or disables directory listing. If "true", directories will be listed.
   "index_file": "index.html"  // The file that will be served when a directory is requested (e.g., index.html).
 }
+```
+## Default `config.json`
+
+```json
+{
+  "host": "0.0.0.0",
+  "port": 80,
+  "enable_ssl": false,
+  "ssl_cert": "Address/to/your/cert.pem",.
+  "ssl_key": "Address/to/your/key.pem",
+  "domain": "yourdomain.com",
+  "ftp_srv_index": "true",
+  "index_file": "index.html"
+}
