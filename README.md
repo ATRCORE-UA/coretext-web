@@ -45,6 +45,16 @@ This project enables you to configure your own web server to serve static files 
 - `exit`/`stop` - stop the web server.
 - `reload_conf` - reload server configuratiob (`config.json`)
 
+```
+==================================================
+CoretexWEB/1.7.71B
+Running at port: 80
+Serving files from: C:\web-server\1.7.71B\htdocs
+SSL Enabled: No
+==================================================
+Enter command:
+```
+Here you see `Enter command:` you can enter any command here.
 
 ## Setup
 !Minimum python 3.10!
