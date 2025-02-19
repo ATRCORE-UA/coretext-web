@@ -41,7 +41,7 @@ This project enables you to configure your own web server to serve static files 
 ```
 
 ## Setup
-####Minimum python 3.10!
+!Minimum python 3.10!
 ### Step 1
 
 Download latest ZIP of release from [here](https://github.com/ATRCORE-UA/coretext-web/releases/latest).
