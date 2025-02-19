@@ -84,7 +84,7 @@ Run `python server.py` in the root directory.
 ## .htaccess Rules Handler
 
 
-# Supported .htaccess Rules:
+### Supported .htaccess Rules:
 
 - **Deny from all**  
   Denies access to all users.  
@@ -104,16 +104,11 @@ Defines custom error pages for specific HTTP errors (e.g., 404).
 **Example**:
 ErrorDocument 404 /custom-404.html
 
-
 - **Options -Indexes**  
 Disables directory listing.  
 **Response:** `403 Forbidden` with message "Directory listing is disabled".  
 **Example**:
 Options -Indexes
-
-markdown
-Копіювати
-Редагувати
 
 - **ReturnStatus**  
 Returns a custom HTTP status code.  
@@ -121,12 +116,3 @@ Returns a custom HTTP status code.
 **Example**:
 ReturnStatus 418
 
-markdown
-Копіювати
-Редагувати
-
-### How the script works:
-1. It searches for `.htaccess` files starting from the requested path and moves upwards through parent directories.
-2. The first matching rule found in any `.htaccess` file is applied to the request.
-
-This script helps to easily manage `.htaccess` rules programmatically within a Flask app or similar setups.
