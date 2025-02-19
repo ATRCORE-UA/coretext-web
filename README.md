@@ -90,29 +90,29 @@ Run `python server.py` in the root directory.
   Denies access to all users.  
   **Response:** `403 Forbidden`.  
   **Example**:
-Deny from all
+`Deny from all`
 
 - **Redirect**  
 Redirects from one URL to another.  
 **Response:** `301 Moved Permanently`.  
 **Example**:
-Redirect /old-page /new-page
+`Redirect /old-page /new-page`
 
 - **ErrorDocument**  
 Defines custom error pages for specific HTTP errors (e.g., 404).  
 **Response:** Custom error page with specified status code.  
 **Example**:
-ErrorDocument 404 /custom-404.html
+`ErrorDocument 404 /custom-404.html`
 
 - **Options -Indexes**  
 Disables directory listing.  
-**Response:** `403 Forbidden` with message "Directory listing is disabled".  
+**Response:** `403 Forbidden with message "Directory listing is disabled".`
 **Example**:
-Options -Indexes
+`Options -Indexes`
 
 - **ReturnStatus**  
 Returns a custom HTTP status code.  
 **Response:** The specified status code with no content.  
 **Example**:
-ReturnStatus 418
+`ReturnStatus 418`
 
