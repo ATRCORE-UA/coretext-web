@@ -6,9 +6,6 @@ Coretext-WEB is a web server that serves static files with SSL support and allow
 
 This project enables you to configure your own web server to serve static files over HTTPS with the option to enable/disable directory listing.
 
-## Setup
-
-To configure the server, you need to edit the `config.json` file. Here's an example configuration:
 
 ### Configuration File: `config.json`
 
@@ -22,10 +19,11 @@ To configure the server, you need to edit the `config.json` file. Here's an exam
   "domain": "yourdomain.com",  // Your domain name (e.g., example.com) for the server.
   "ftp_srv_index": "true",  // Enables or disables directory listing. If "true", directories will be listed.
   "index_file": "index.html",  // The file that will be served when a directory is requested (e.g., index.html).
-  "htdocs_path": "Path/to/your/htdocs" // Path to the 'htdocs' directory with your HTML files.
+  "htdocs_path": "Path/to/your/htdocs", // Path to the 'htdocs' directory with your HTML files.
+  "logs": "true" // Enable http request logs to access_log.txt.
 }
 ```
-## Default `config.json`
+### Default `config.json`
 
 ```json
 {
@@ -37,5 +35,31 @@ To configure the server, you need to edit the `config.json` file. Here's an exam
   "domain": "yourdomain.com",
   "ftp_srv_index": "true",
   "index_file": "index.html",
-  "htdocs_path": "Path/to/your/htdocs"
+  "htdocs_path": "Path/to/your/htdocs",
+  "logs": "true"
 }
+```
+
+## Setup
+
+### Step 1
+
+Download latest ZIP of release from [here](https://github.com/ATRCORE-UA/coretext-web/releases/latest).
+
+### Step 2
+
+Unzip the ZIP to any location, e.g. C:\coretext-web-x.x.xx
+
+### Step 3
+
+Run 'pip install -r requirements.txt' to install the required libraries.
+
+### Step 4
+
+Open '[config.json](https://github.com/ATRCORE-UA/coretext-web/?tab=readme-ov-file#configuration-file-configjson)' and configure it to your needs.
+
+### Step 5 (final)
+
+Run 'python server.py' in the root directory.
+
+## Now you have opensourse and simple web server✨!
