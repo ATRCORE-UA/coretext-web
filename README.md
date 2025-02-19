@@ -62,7 +62,7 @@ Run `pip install -r requirements.txt` to install the required libraries.
 
 ### Step 4
 
-Open `[config.json](https://github.com/ATRCORE-UA/coretext-web/?tab=readme-ov-file#configuration-file-configjson)` and configure it to your needs.
+Open [`config.json`](https://github.com/ATRCORE-UA/coretext-web/?tab=readme-ov-file#configuration-file-configjson) and configure it to your needs.
 
 ### Step 5 (final)
 
