@@ -79,3 +79,54 @@ Open [`config.json`](https://github.com/ATRCORE-UA/coretext-web/?tab=readme-ov-f
 Run `python server.py` in the root directory.
 
 ## Now you have opensourse and simple web server✨!
+
+
+## .htaccess Rules Handler
+
+
+# Supported .htaccess Rules:
+
+- **Deny from all**  
+  Denies access to all users.  
+  **Response:** `403 Forbidden`.  
+  **Example**:
+Deny from all
+
+- **Redirect**  
+Redirects from one URL to another.  
+**Response:** `301 Moved Permanently`.  
+**Example**:
+Redirect /old-page /new-page
+
+- **ErrorDocument**  
+Defines custom error pages for specific HTTP errors (e.g., 404).  
+**Response:** Custom error page with specified status code.  
+**Example**:
+ErrorDocument 404 /custom-404.html
+
+
+- **Options -Indexes**  
+Disables directory listing.  
+**Response:** `403 Forbidden` with message "Directory listing is disabled".  
+**Example**:
+Options -Indexes
+
+markdown
+Копіювати
+Редагувати
+
+- **ReturnStatus**  
+Returns a custom HTTP status code.  
+**Response:** The specified status code with no content.  
+**Example**:
+ReturnStatus 418
+
+markdown
+Копіювати
+Редагувати
+
+### How the script works:
+1. It searches for `.htaccess` files starting from the requested path and moves upwards through parent directories.
+2. The first matching rule found in any `.htaccess` file is applied to the request.
+
+This script helps to easily manage `.htaccess` rules programmatically within a Flask app or similar setups.
