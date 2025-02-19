@@ -42,8 +42,8 @@ This project enables you to configure your own web server to serve static files 
 
 ## Commands
 
-- 'exit'/'stop' - stop the web server.
-- 'reload_conf' - reload server configuratiob ('config.json')
+- `exit`/`stop` - stop the web server.
+- `reload_conf` - reload server configuratiob (`config.json`)
 
 
 ## Setup
