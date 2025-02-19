@@ -106,7 +106,7 @@ Defines custom error pages for specific HTTP errors (e.g., 404).
 
 - **Options -Indexes**  
 Disables directory listing.  
-**Response:** `403 Forbidden with message "Directory listing is disabled".`
+**Response:** `403 Forbidden with message "Directory listing is disabled".`  
 **Example**:
 `Options -Indexes`
 
