@@ -5,7 +5,8 @@
     "ssl_cert": "Path/to/your/cert.pem",
     "ssl_key": "Path/to/your/key.pem",
     "domain": "your domain",
-	"ftp_srv_index": "false",
+	"ftp_srv_index": "true",
 	"index_file": "index.html",
-	"htdocs_path": "Path/to/your/htdocs"
+	"htdocs_path": "Path/to/your/htdocs",
+	"logs": "true"
 }

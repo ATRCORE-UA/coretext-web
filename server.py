@@ -1,119 +1,143 @@
+from flask import Flask, request, send_from_directory, jsonify
 import json
-import os
-import sys
-from flask import Flask, send_from_directory, abort, Response
-from werkzeug.utils import safe_join
 from werkzeug.serving import WSGIRequestHandler
+from werkzeug.serving import run_simple
+from werkzeug.middleware.proxy_fix import ProxyFix
+from datetime import datetime
+import sys
+import os
+import threading
+import socket
+import multiprocessing
+import signal
+import logging
+import time
+
+ver = "1.7.71B"
+
+sys.path.append(os.path.join(os.path.dirname(__file__), 'modules'))
+from directory_listing import generate_directory_page
+import reload_conf
+from server_utils import *
+from actions import *
+from check_index import *
 
 app = Flask(__name__)
+app.wsgi_app = ProxyFix(app.wsgi_app)
 
-# Change the server header in Werkzeug
-WSGIRequestHandler.server_version = "CoretexWEB/1.7.65A"
+WSGIRequestHandler.server_version = f"CoretexWEB/{ver}"
 WSGIRequestHandler.sys_version = ""
 
-# Load configuration from a JSON file
-def load_config(filename):
-    with open(filename, 'r') as f:
-        return json.load(f)
-
-# Get the base directory path (for both .exe and Python script)
+# base_dir
 def get_base_dir():
-    if getattr(sys, 'frozen', False):  # If the script is running as a .exe
+    if getattr(sys, 'frozen', False):
         return sys._MEIPASS
-    return os.path.dirname(os.path.abspath(__file__))  # If running as a Python script
+    return os.path.dirname(os.path.abspath(__file__))
 
-# Generate a directory listing page
-def generate_directory_page(path, port):
-    file_list = os.listdir(path)
-    directories = [f for f in file_list if os.path.isdir(os.path.join(path, f))]
-    files = [f for f in file_list if os.path.isfile(os.path.join(path, f))]
-
-    html_content = "<h1>Directory Listing</h1><ul>"
-
-    # Add directories to the HTML content
-    for directory in directories:
-        rel_path = safe_join(path, directory)
-        html_content += f'<li><a href="/{os.path.relpath(rel_path, config["htdocs_path"])}/">{directory}/</a></li>'
-
-    # Add files to the HTML content
-    for file in files:
-        rel_path = safe_join(path, file)
-        html_content += f'<li><a href="/{os.path.relpath(rel_path, config["htdocs_path"])}">{file}</a></li>'
-
-    html_content += "</ul>"
-    html_content += f'<hr><p>CoretexWEB/1.7.65A - Running at port: {port}</p>'
-
-    response = Response(html_content, content_type="text/html")
-    response.headers["X-Powered-By"] = "ATRCORE/Python"
-    return response
-
-# Add headers to all responses
-@app.after_request
-def add_headers(response):
-    response.headers["X-Powered-By"] = "ATRCORE/Python"
-    return response
-
-# Route to serve files or directory listings
-@app.route('/<path:filename>')
-def serve_file(filename):
-    file_path = os.path.join(config["htdocs_path"], filename)
-
-    # If the path is a directory, check for an index file
-    if os.path.isdir(file_path):
-        index_file = config.get("index_file", "index.html")
-        index_path = os.path.join(file_path, index_file)
-
-        # If an index file exists, serve it
-        if os.path.exists(index_path):
-            return send_from_directory(file_path, index_file)
-
-        # If no index file is found, generate a directory listing
-        return generate_directory_page(file_path, config["port"])
-
-    # If the path is a file, try to serve it
+# load config
+def load_config(config_path):
     try:
-        return send_from_directory(config["htdocs_path"], filename)
-    except FileNotFoundError:
-        abort(404)
+        with open(config_path, 'r') as f:
+            return json.load(f)
+    except Exception as e:
+        print(f"Error loading config: {e}")
+        return {}
 
-# Route for the root URL
-@app.route('/')
-def home():
-    index_file = config.get("index_file", "index.html")
-    index_path = os.path.join(config["htdocs_path"], index_file)
-
-    # If the index file exists, serve it
-    if os.path.exists(index_path):
-        return send_from_directory(config["htdocs_path"], index_file)
-
-    # If directory listing is disabled, return a 404 error
-    if config.get("ftp_srv_index", "false") == "false":
-        abort(404)
-
-    # If no index file is found, generate a directory listing
-    return generate_directory_page(config["htdocs_path"], config["port"])
-
-if __name__ == '__main__':
-    # Get the base directory and load the configuration
+# logs
+@app.before_request
+def log_request():
     base_dir = get_base_dir()
     config_path = os.path.join(base_dir, 'config.json')
     config = load_config(config_path)
 
-    # Set the path to the htdocs directory from the configuration
-    config["htdocs_path"] = os.path.join(base_dir, config.get("htdocs_path", "htdocs"))
+    # Check if logging is enabled in config
+    logs_enabled = config.get("logs", "false").lower() == "true"
+    
+    if logs_enabled:
+        with open("access_log.txt", "a") as log_file:
+            log_file.write(f'{request.remote_addr} accessed {request.path} at {datetime.now()}\n')
+
+
+@app.route('/', defaults={'subpath': ''}, methods=["GET"])
+@app.route('/<path:subpath>', methods=["GET"])
+def serve_directory(subpath):
+    base_dir = get_base_dir()
+    config_path = os.path.join(base_dir, 'config.json')
+    config = load_config(config_path)
+
+    htdocs_path = os.path.join(base_dir, config.get("htdocs_path", "htdocs"))
+    requested_path = os.path.join(htdocs_path, subpath.strip("/"))
+    index_filename = config.get("index_file", "index.html")
+    ftp_srv_index = str(config.get("ftp_srv_index", "false")).lower() == "true"
+
+    if os.path.isdir(requested_path):
+        index_file = find_index_file(requested_path, index_filename)
+
+        if index_file:
+            return send_from_directory(requested_path, index_file)
+
+        if ftp_srv_index:
+            base_url = f"/{subpath.strip('/')}"
+            return generate_directory_page(requested_path, config["port"], base_url, ver)
+
+        return "404 Not found - index_file was not found", 404
+
+    elif os.path.isfile(requested_path):
+        return send_from_directory(htdocs_path, subpath.strip("/"))
+
+    return "404 Not Found", 404
+
+
+def listen_for_commands(server_process):
+
+    while True:
+        command = input("Enter command: ")
+        if command == "reload_conf":
+            base_dir = get_base_dir()
+            config = reload_conf.reload_config(base_dir)
+            if config:
+                print("Configuration reloaded successfully. Restarting CortextWEB/" + ver + " server...")
+                restart_flask()
+            else:
+                print("Failed to reload configuration.")
+        elif command == "stop":
+            stop_flask(server_process)
+        elif command == "":
+            command = input("Enter command: ")
+        elif command == "exit":
+            print("Exiting...")
+            break
+        else:
+            print(f"Unknown command: {command}")
+
+def run_flask_server():
+    base_dir = get_base_dir()
+    config_path = os.path.join(base_dir, 'config.json')
+    config = load_config(config_path)
+    htdocs_path = os.path.join(base_dir, config.get("htdocs_path", "htdocs"))
 
     try:
-        # Set up SSL if enabled in the configuration
         ssl_context = None
         if config.get("enable_ssl", False):
             ssl_context = (config["ssl_cert"], config["ssl_key"])
 
-        # Print server information
-        print(f"CoretexWEB/1.7.65A - Running at port: {config['port']}")
-        print(f"Serving files from: {config['htdocs_path']}")
+        print("\n" + "="*50)
+        print(f"CoretexWEB/{ver}")
+        print(f"Running at port: {config['port']}")
+        print(f"Serving files from: {htdocs_path}")
+        if ssl_context:
+            print(f"SSL Enabled: Yes")
+        else:
+            print(f"SSL Enabled: No")
+        print("="*50)
 
-        # Start the Flask app
-        app.run(host=config["host"], port=config["port"], ssl_context=ssl_context)
-
+        run_simple(config["host"], config["port"], app, ssl_context=ssl_context, use_reloader=False)
     except Exception as e:
         print(f"Error occurred: {e}")
+
+if __name__ == '__main__':
+    server_process = multiprocessing.Process(target=run_flask_server)
+    server_process.start()
+    time.sleep(5)
+
+    listen_for_commands(server_process)
