@@ -54,18 +54,18 @@ Download latest ZIP of release from [here](https://github.com/ATRCORE-UA/coretex
 
 ### Step 2
 
-Unzip the ZIP to any location, e.g. C:\coretext-web-x.x.xx
+Unzip the ZIP to any location, e.g. `C:\coretext-web-x.x.xx`
 
 ### Step 3
 
-Run 'pip install -r requirements.txt' to install the required libraries.
+Run `pip install -r requirements.txt` to install the required libraries.
 
 ### Step 4
 
-Open '[config.json](https://github.com/ATRCORE-UA/coretext-web/?tab=readme-ov-file#configuration-file-configjson)' and configure it to your needs.
+Open `[config.json](https://github.com/ATRCORE-UA/coretext-web/?tab=readme-ov-file#configuration-file-configjson)` and configure it to your needs.
 
 ### Step 5 (final)
 
-Run 'python server.py' in the root directory.
+Run `python server.py` in the root directory.
 
 ## Now you have opensourse and simple web server✨!
