@@ -52,7 +52,7 @@ This project enables you to configure your own web server to serve static files 
 ==================================================
 CoretexWEB/1.7.73A
 Running at port: 80
-Serving files from: C:/Users/impos/Desktop/web-server/1.7.73A/htdocs
+Serving files from: C:/web-server/1.7.73A/htdocs
 Python scripts execution: Enabled
 SSL Enabled: No
 ==================================================
