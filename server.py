@@ -1,4 +1,4 @@
-from flask import Flask, request, send_from_directory, jsonify
+from flask import Flask, request, send_from_directory, jsonify, redirect
 import json
 from werkzeug.serving import WSGIRequestHandler
 from werkzeug.serving import run_simple
@@ -13,7 +13,7 @@ import signal
 import logging
 import time
 
-ver = "1.7.71B"
+ver = "1.7.73A"
 
 sys.path.append(os.path.join(os.path.dirname(__file__), 'modules'))
 from directory_listing import generate_directory_page
@@ -21,12 +21,8 @@ import reload_conf
 from server_utils import *
 from actions import *
 from check_index import *
-
-app = Flask(__name__)
-app.wsgi_app = ProxyFix(app.wsgi_app)
-
-WSGIRequestHandler.server_version = f"CoretexWEB/{ver}"
-WSGIRequestHandler.sys_version = ""
+from htaccess import check_htaccess_in_all_directories, read_htaccess
+from script_executor import execute_python_script
 
 # base_dir
 def get_base_dir():
@@ -43,6 +39,21 @@ def load_config(config_path):
         print(f"Error loading config: {e}")
         return {}
 
+# Set the server version before initializing the Flask app
+python_version = sys.version.split()[0]
+config_path = os.path.join(get_base_dir(), 'config.json')
+config = load_config(config_path)
+enable_py_scripts = config.get("py-scripts", False)
+
+if enable_py_scripts:
+    WSGIRequestHandler.server_version = f"CoretexWEB/{ver} Python/{python_version}"
+else:
+    WSGIRequestHandler.server_version = f"CoretexWEB/{ver}"
+WSGIRequestHandler.sys_version = ""
+
+app = Flask(__name__)
+app.wsgi_app = ProxyFix(app.wsgi_app)
+
 # logs
 @app.before_request
 def log_request():
@@ -50,13 +61,11 @@ def log_request():
     config_path = os.path.join(base_dir, 'config.json')
     config = load_config(config_path)
 
-    # Check if logging is enabled in config
-    logs_enabled = config.get("logs", "false").lower() == "true"
+    logs_enabled = str(config.get("logs", "false")).lower() == "true"
     
     if logs_enabled:
         with open("access_log.txt", "a") as log_file:
             log_file.write(f'{request.remote_addr} accessed {request.path} at {datetime.now()}\n')
-
 
 @app.route('/', defaults={'subpath': ''}, methods=["GET"])
 @app.route('/<path:subpath>', methods=["GET"])
@@ -67,14 +76,43 @@ def serve_directory(subpath):
 
     htdocs_path = os.path.join(base_dir, config.get("htdocs_path", "htdocs"))
     requested_path = os.path.join(htdocs_path, subpath.strip("/"))
-    index_filename = config.get("index_file", "index.html")
+    index_filename = config.get("index_file", "index.html")  # Отримуємо параметр index_file з конфігурації
     ftp_srv_index = str(config.get("ftp_srv_index", "false")).lower() == "true"
+    enable_py_scripts = config.get("py-scripts", False)
+
+
+    htaccess_result = check_htaccess_in_all_directories(requested_path)
+    if htaccess_result:
+        if isinstance(htaccess_result, tuple):
+            if htaccess_result[0].startswith(("http://", "https://")):
+                return redirect(htaccess_result[0])
+            return htaccess_result[0], htaccess_result[1]
+        return redirect(htaccess_result)
+
+    htaccess_rules = read_htaccess(requested_path)
+    if htaccess_rules:
+        for rule in htaccess_rules:
+            rule = rule.strip()
+            if rule.startswith("Redirecttourl"):
+                _, url = rule.split(maxsplit=1)
+                return redirect(url)
 
     if os.path.isdir(requested_path):
-        index_file = find_index_file(requested_path, index_filename)
 
-        if index_file:
-            return send_from_directory(requested_path, index_file)
+        if htaccess_rules and "Options -Indexes" in "".join(htaccess_rules):
+            return "403 Forbidden - Directory listing is disabled", 403
+
+
+        if index_filename.endswith(".py"):
+            if os.path.isfile(os.path.join(requested_path, index_filename)):
+                if enable_py_scripts:
+                    return execute_python_script(os.path.join(requested_path, index_filename))
+                return "403 Forbidden: Python script execution is disabled.", 403
+        else:
+            index_file = find_index_file(requested_path, index_filename)
+            if index_file:
+                return send_from_directory(requested_path, index_file)
+
 
         if ftp_srv_index:
             base_url = f"/{subpath.strip('/')}"
@@ -83,30 +121,40 @@ def serve_directory(subpath):
         return "404 Not found - index_file was not found", 404
 
     elif os.path.isfile(requested_path):
+        if requested_path.endswith(".py"):
+            if enable_py_scripts:
+                return execute_python_script(requested_path)
+            return "403 Forbidden: Python script execution is disabled.", 403
         return send_from_directory(htdocs_path, subpath.strip("/"))
 
     return "404 Not Found", 404
 
 
-def listen_for_commands(server_process):
 
+def listen_for_commands(server_process):
     while True:
-        command = input("Enter command: ")
+        command = input("Enter command: ").strip().lower()
+        
         if command == "reload_conf":
             base_dir = get_base_dir()
             config = reload_conf.reload_config(base_dir)
             if config:
-                print("Configuration reloaded successfully. Restarting CortextWEB/" + ver + " server...")
+                print(f"Configuration reloaded successfully. Restarting CoretexWEB/{ver} server...")
                 restart_flask()
             else:
                 print("Failed to reload configuration.")
         elif command == "stop":
-            stop_flask(server_process)
-        elif command == "":
-            command = input("Enter command: ")
+            print("Stopping server...")
+            server_process.terminate()
+            break
+        elif command == "ip_conf":
+            ips = get_ip().split("\n")
+            for ip in ips:
+                print(ip)
         elif command == "exit":
             print("Exiting...")
-            break
+            server_process.terminate()
+            sys.exit(0)
         else:
             print(f"Unknown command: {command}")
 
@@ -123,21 +171,18 @@ def run_flask_server():
 
         print("\n" + "="*50)
         print(f"CoretexWEB/{ver}")
-        print(f"Running at port: {config['port']}")
+        print(f"Running at port: {config.get('port', 5000)}")
         print(f"Serving files from: {htdocs_path}")
-        if ssl_context:
-            print(f"SSL Enabled: Yes")
-        else:
-            print(f"SSL Enabled: No")
+        print(f"Python scripts execution: {'Enabled' if config.get('py-scripts', False) else 'Disabled'}")
+        print(f"SSL Enabled: {'Yes' if ssl_context else 'No'}")
         print("="*50)
 
-        run_simple(config["host"], config["port"], app, ssl_context=ssl_context, use_reloader=False)
+        run_simple(config.get("host", "127.0.0.1"), config.get("port", 5000), app, ssl_context=ssl_context, use_reloader=False)
     except Exception as e:
         print(f"Error occurred: {e}")
 
 if __name__ == '__main__':
     server_process = multiprocessing.Process(target=run_flask_server)
     server_process.start()
-    time.sleep(5)
-
+    time.sleep(2)
     listen_for_commands(server_process)

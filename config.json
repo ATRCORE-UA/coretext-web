@@ -8,5 +8,6 @@
 	"ftp_srv_index": "true",
 	"index_file": "index.html",
 	"htdocs_path": "Path/to/your/htdocs",
-	"logs": "true"
+	"logs": "true",
+	"py-scripts": true
 }
