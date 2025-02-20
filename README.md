@@ -139,4 +139,4 @@ print("<h1>This is CoretextWEB!</h1>")
 - You can use all python libraries to use python as php.
 - It supports `Get-Requests` e.g. `http://localhost/get.py?data=yourdata`
 
--_ ### `!This functionality is available from CoretextWEB version 1.7.73A!`
+- ### `!This functionality is available from CoretextWEB version 1.7.73A!`
