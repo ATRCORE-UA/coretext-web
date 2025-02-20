@@ -21,6 +21,7 @@ This project enables you to configure your own web server to serve static files 
   "index_file": "index.html",  // The file that will be served when a directory is requested (e.g., index.html).
   "htdocs_path": "Path/to/your/htdocs", // Path to the 'htdocs' directory with your HTML files.
   "logs": "true" // Enable http request logs to access_log.txt.
+  "py-scripts": true // enables the web server to execute Python scripts as dynamic web pages.
 }
 ```
 ### Default `config.json`
@@ -36,22 +37,27 @@ This project enables you to configure your own web server to serve static files 
   "ftp_srv_index": "true",
   "index_file": "index.html",
   "htdocs_path": "Path/to/your/htdocs",
-  "logs": "true"
+  "logs": "true",
+  "py-scripts": true
 }
 ```
 
 ## Commands
 
 - `exit`/`stop` - stop the web server.
-- `reload_conf` - reload server configuratiob (`config.json`)
+- `reload_conf` - reload server configuration (`config.json`).
+- `ip_conf` - you can see your global IP adress.
 
 ```
 ==================================================
-CoretexWEB/1.7.71B
+CoretexWEB/1.7.73A
 Running at port: 80
-Serving files from: C:\web-server\1.7.71B\htdocs
+Serving files from: C:/Users/impos/Desktop/web-server/1.7.73A/htdocs
+Python scripts execution: Enabled
 SSL Enabled: No
 ==================================================
+Enter command: ip_conf
+Global: 46.200.135.226
 Enter command:
 ```
 Here you see `Enter command:` you can enter any command here.
@@ -81,10 +87,8 @@ Run `python server.py` in the root directory.
 ## Now you have opensourse and simple web server✨!
 
 
-## .htaccess Rules Handler
 
-
-### Supported .htaccess Rules:
+## Supported .htaccess Rules:
 
 - **Deny from all**  
   Denies access to all users.  
@@ -116,3 +120,23 @@ Returns a custom HTTP status code.
 **Example**:
 `ReturnStatus 418`
 
+- **Redirecttourl**  
+Returns a custom HTTP status code.  
+**Response:** This file will take you to a specific URL.  
+**Example**:
+`Redirecttourl https://google.com/`
+
+## .py web dynamic web-pages.
+
+```
+# web-page.py
+print("<html><body><h1>Hello, World!</h1>")
+print("<h1>This is CoretextWEB!</h1>")
+```
+### What does this mean to you?
+
+- You can use `pip install mysql-connector-python` for connecting to MysqlDB's.
+- You can use all python libraries to use python as php.
+- It supports `Get-Requests` e.g. `http://localhost/get.py?data=yourdata`
+
+### - `!This functionality is available from CoretextWEB version 1.7.73A!`
