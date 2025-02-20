@@ -64,6 +64,7 @@ Here you see `Enter command:` you can enter any command here.
 
 ## Setup
 !Minimum python 3.10!
+
 ### Step 1
 
 Download latest ZIP of release from [here](https://github.com/ATRCORE-UA/coretext-web/releases/latest).
@@ -75,6 +76,10 @@ Unzip the ZIP to any location, e.g. `C:\coretext-web-x.x.xx`
 ### Step 3
 
 Run `pip install -r requirements.txt` to install the required libraries.
+If you have errors with libraries, try to run:
+`pip install Flask`
+`pip install Werkzeug`
+`pip install requests`
 
 ### Step 4
 
