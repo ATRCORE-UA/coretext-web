@@ -13,7 +13,8 @@ import signal
 import logging
 import time
 
-ver = "1.7.73A"
+
+ver = "1.7.74S"
 
 sys.path.append(os.path.join(os.path.dirname(__file__), 'modules'))
 from directory_listing import generate_directory_page
@@ -23,12 +24,15 @@ from actions import *
 from check_index import *
 from htaccess import check_htaccess_in_all_directories, read_htaccess
 from script_executor import execute_python_script
+from ddos_protection import check_ip
+
 
 # base_dir
 def get_base_dir():
     if getattr(sys, 'frozen', False):
         return sys._MEIPASS
     return os.path.dirname(os.path.abspath(__file__))
+
 
 # load config
 def load_config(config_path):
@@ -67,9 +71,23 @@ def log_request():
         with open("access_log.txt", "a") as log_file:
             log_file.write(f'{request.remote_addr} accessed {request.path} at {datetime.now()}\n')
 
+def block_ddos():
+    enable_ddos = config.get("ddos-protection", False)
+    if enable_ddos:
+        if not check_ip(request.remote_addr):
+            return "429 Too Many Requests", 429
+
+
+
 @app.route('/', defaults={'subpath': ''}, methods=["GET"])
 @app.route('/<path:subpath>', methods=["GET"])
 def serve_directory(subpath):
+    # Додаємо захист від DDoS
+    response = block_ddos()
+    if response:
+        return response
+    
+    # Завантажуємо конфігурацію та шляхи
     base_dir = get_base_dir()
     config_path = os.path.join(base_dir, 'config.json')
     config = load_config(config_path)
@@ -80,7 +98,7 @@ def serve_directory(subpath):
     ftp_srv_index = str(config.get("ftp_srv_index", "false")).lower() == "true"
     enable_py_scripts = config.get("py-scripts", False)
 
-
+    # Перевірка на htaccess
     htaccess_result = check_htaccess_in_all_directories(requested_path)
     if htaccess_result:
         if isinstance(htaccess_result, tuple):
@@ -97,12 +115,12 @@ def serve_directory(subpath):
                 _, url = rule.split(maxsplit=1)
                 return redirect(url)
 
+    # Якщо запитаний шлях - це директорія
     if os.path.isdir(requested_path):
-
         if htaccess_rules and "Options -Indexes" in "".join(htaccess_rules):
             return "403 Forbidden - Directory listing is disabled", 403
 
-
+        # Якщо запитаний файл - Python-скрипт
         if index_filename.endswith(".py"):
             if os.path.isfile(os.path.join(requested_path, index_filename)):
                 if enable_py_scripts:
@@ -113,13 +131,14 @@ def serve_directory(subpath):
             if index_file:
                 return send_from_directory(requested_path, index_file)
 
-
+        # Генерація сторінки директорії для FTP-сервера
         if ftp_srv_index:
             base_url = f"/{subpath.strip('/')}"
             return generate_directory_page(requested_path, config["port"], base_url, ver)
 
         return "404 Not found - index_file was not found", 404
 
+    # Якщо запитаний шлях - це файл
     elif os.path.isfile(requested_path):
         if requested_path.endswith(".py"):
             if enable_py_scripts:
@@ -128,6 +147,7 @@ def serve_directory(subpath):
         return send_from_directory(htdocs_path, subpath.strip("/"))
 
     return "404 Not Found", 404
+
 
 
 
