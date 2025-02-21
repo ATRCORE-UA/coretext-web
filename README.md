@@ -85,7 +85,8 @@ Enter command:
 Here you see `Enter command:` you can enter any command here.
 
 ## Setup
-!Minimum python 3.10!
+!Minimum Python 3.10 required!
+<font color="red">This text is red</font>
 
 ### Step 1
 
