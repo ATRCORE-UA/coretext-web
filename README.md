@@ -21,7 +21,8 @@ This project enables you to configure your own web server to serve static files 
   "index_file": "index.html",  // The file that will be served when a directory is requested (e.g., index.html).
   "htdocs_path": "Path/to/your/htdocs", // Path to the 'htdocs' directory with your HTML files.
   "logs": "true" // Enable http request logs to access_log.txt.
-  "py-scripts": true // enables the web server to execute Python scripts as dynamic web pages.
+  "py-scripts": true // Enables the web server to execute Python scripts as dynamic web pages.
+  "ddos-protection": true // Enables DDOS-protection for a web-server.
 }
 ```
 ### Default `config.json`
@@ -39,6 +40,27 @@ This project enables you to configure your own web server to serve static files 
   "htdocs_path": "Path/to/your/htdocs",
   "logs": "true",
   "py-scripts": true
+  "ddos-protection": true
+}
+```
+## DDOS-protection
+
+### Configuration File: `ddos.json`
+
+```
+{
+    "max_requests": 150, // Number of allowed requests per minute.
+    "block_time": 300 // The time for which the IP will be blocked.
+}
+
+```
+
+### Default `ddos.json`
+
+```
+{
+    "max_requests": 100,
+    "block_time": 300
 }
 ```
 
