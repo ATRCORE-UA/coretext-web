@@ -47,7 +47,7 @@ This project enables you to configure your own web server to serve static files 
 
 ### Configuration File: `ddos.json`
 
-```
+```json
 {
     "max_requests": 150, // Number of allowed requests per minute.
     "block_time": 300 // The time for which the IP will be blocked.
@@ -57,7 +57,7 @@ This project enables you to configure your own web server to serve static files 
 
 ### Default `ddos.json`
 
-```
+```json
 {
     "max_requests": 100,
     "block_time": 300
