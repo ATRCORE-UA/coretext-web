@@ -72,14 +72,14 @@ This project enables you to configure your own web server to serve static files 
 
 ```
 ==================================================
-CoretexWEB/1.7.73A
+CoretexWEB/1.7.74S
 Running at port: 80
 Serving files from: C:/web-server/1.7.73A/htdocs
 Python scripts execution: Enabled
 SSL Enabled: No
 ==================================================
 Enter command: ip_conf
-Global: 46.200.135.226
+Global: 34.123.231.45
 Enter command:
 ```
 Here you see `Enter command:` you can enter any command here.
