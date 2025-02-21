@@ -166,4 +166,19 @@ print("<h1>This is CoretextWEB!</h1>")
 - You can use any python library to use in a python script to create a dynamic HTML page.
 - It supports `Get-Requests` e.g. `http://localhost/get.py?data=yourdata`
 
-- ### `!This functionality is available from CoretextWEB version 1.7.73A!`
+### How to use `Get-Requests` e.g. `http://localhost/get.py?data=yourdata`?
+
+Here is an example:
+```
+import sys
+import json
+
+if len(sys.argv) > 1:
+    params = json.loads(sys.argv[1])
+    data = params.get("data", "No data received")
+    print(f"Received data: {data}")
+else:
+    print("No parameters received")
+```
+
+- ### `!This functionality is available from CoretextWEB version 1.7.74S!`
