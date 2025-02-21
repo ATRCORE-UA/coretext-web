@@ -86,7 +86,6 @@ Here you see `Enter command:` you can enter any command here.
 
 ## Setup
 !Minimum Python 3.10 required!
-<font color="red">This text is red</font>
 
 ### Step 1
 
@@ -99,7 +98,7 @@ Unzip the ZIP to any location, e.g. `C:\coretext-web-x.x.xx`
 ### Step 3
 
 Run `pip install -r requirements.txt` to install the required libraries.
-If you have errors with libraries, try to run:
+If you encounter issues with dependencies, try running:
 `pip install Flask`
 `pip install Werkzeug`
 `pip install requests`
@@ -164,7 +163,7 @@ print("<h1>This is CoretextWEB!</h1>")
 ### What does this mean to you?
 
 - You can use `pip install mysql-connector-python` for connecting to MysqlDB's.
-- You can use all python libraries to use python as php.
+- You can use any python library to use in a python script to create a dynamic HTML page.
 - It supports `Get-Requests` e.g. `http://localhost/get.py?data=yourdata`
 
 - ### `!This functionality is available from CoretextWEB version 1.7.73A!`
