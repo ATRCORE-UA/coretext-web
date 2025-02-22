@@ -1,6 +1,6 @@
-# Coretext-WEB - Web Server Project
+# CoretextWEB - Web Server Project
 
-Coretext-WEB is a web server that serves static files with SSL support and allows directory listing configuration through a JSON configuration file.
+CoretextWEB is a web server that serves static files with SSL support and allows directory listing configuration through a JSON configuration file.
 
 ## Description
 
